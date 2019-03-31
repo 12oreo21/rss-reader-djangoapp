@@ -1,0 +1,2 @@
+web: gunicorn djangoApp.wsgi
+worker: celery -A djangoApp worker --loglevel=info --beat

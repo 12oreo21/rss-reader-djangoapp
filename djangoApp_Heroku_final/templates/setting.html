@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8">
+    <title>RSSリーダー</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.0/css/bootstrap.min.css" integrity="sha384-PDle/QlgIONtM1aqA2Qemk5gPOE7wFq8+Em+G/hmo5Iq0CCmYZLv3fVRDJ4MMwEA" crossorigin="anonymous">
+    <link rel="shortcut icon" href="https://service.tree-web.net/icon_converter/icon/70115265916d3f9b56259d448ffdebb9_l.ico">
+    <link rel="icon" type="image/vnd.microsoft.icon" href="https://service.tree-web.net/icon_converter/icon/70115265916d3f9b56259d448ffdebb9_l.ico">
+  </head>
+  <body>
+    <header>
+      <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
+        <a class="navbar-brand" href="#">
+        <img alt="Brand" src="https://2.bp.blogspot.com/--IoxlstfWg0/XAY5h7Ruy7I/AAAAAAABQcA/PV17GrN6Io8Yv4Ql1xxq68THYITbRLEMwCLcBGAs/s300/animal_koutei_penguin_hina.png" style="height: 30px;">
+        </a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarCollapse">
+          <ul class="navbar-nav mr-auto">
+            <li class="nav-item active">
+              <a class="nav-link" href="{% url 'indexβ' user_id %}"> ホーム<span class="sr-only">(current)</span></a>
+            </li>
+            {% if user.is_authenticated %}
+            <li class="nav-item active">
+              <a class="nav-link" href="{% url 'setting' user_id %}"> 設定 </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/logout"> ログアウト </a>
+            </li>
+            {% endif %}
+          </ul>
+          {% if user.is_authenticated %}
+          <form class="form-inline mt-2 mt-md-0" method="GET" action="{% url 'search' user_id %}">
+            <input class="form-control mr-sm-2" type="text" name="q" placeholder="キーワードを入力" aria-label="Search">
+            <button class="btn btn-outline-success my-2 my-sm-0" type="submit">検索</button>　<!-- 検索結果一覧のテンプレートとパスを作成する必要あり -->
+          </form>
+          {% endif %}
+        </div>
+      </nav>
+    </header>
+    <main role="main">
+      <section class="jumbotron text-center mt-4 mt-md-3">
+        <div class="container">
+          {% if user.is_authenticated %}
+          <p class="text-right">{{username}}さんとしてログイン</p>
+          {% endif %}
+          <h1 class="jumbotron-heading">RSSフィード</h1>
+          {% if user.is_authenticated %}
+          <p class="lead text-muted">新しいフィードを登録したい場合は以下のフォームから登録</p>
+          <form class="form-inline mt-2 mt-md-0" action="{% url 'post' user_id %}" method="POST">
+            {% csrf_token %}
+            <input type="text" name="url" class="form-control mr-sm-2" placeholder="フィードのURLを入力" aria-label="Search">
+            <button class="btn btn-outline-success my-2 my-m-0" type="submit">送信</button>
+          </form>
+          {% else %}
+          <h1>ログインするとフィードを追加できます</h1>
+          <p>
+            <a href="/accounts/login" class="btn btn-primary my-2">ログインする</a>
+            <a href="/create_user" class="btn btn-secondary my-2">アカウントを登録する</a>
+          </p>
+          {% endif %}
+        </div>
+      </section>
+
+      {% if user.is_authenticated %}
+      <div class="album py-5 bg-light">
+        <div class="container">
+          <div class="row">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th scope="col"></th>
+                  <th scope="col">タイトル</th>
+                  <th scope="col">説明</th>
+                  <th scope="col">フィードのURL</th>
+                  <th scope="col">削除</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for feed in feeds %}
+                <tr>
+                  <th scope="row">{{forloop.counter}}</th>
+                  <td>{{feed.title}}</td>
+                  <td>{{feed.description}}</td>
+                  <td>{{feed.href}}</td>
+                  <td>
+                    <form action="{% url 'delete_feed' user_id %}" method="POST">
+                      {% csrf_token %}
+                      <input name="id" type="hidden" value="{{feed.id}}">
+                      <button type="submit">削除</button>
+                    </form>
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      {% endif %}
+    </main>
+  </body>
+  <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.0/js/bootstrap.min.js" integrity="sha384-7aThvCh9TypR7fIc2HV4O/nFMVCBwyIUKL8XCtKE+8xgCgl/PQGuFsvShjr74PBp" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+</html>
